@@ -318,5 +318,5 @@ port		: 7300
 
 -----------------------------------------
 EOF
-echo $mboh
+echo $mboh.txt
 cat $mboh
