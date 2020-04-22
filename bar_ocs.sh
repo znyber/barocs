@@ -284,7 +284,7 @@ service stunnel4 restart
 service openvpn-server@server restart
 /etc/init.d/sslh restart
 /etc/init.d/webmin restart
-netstat -netulp |grep "sslh\|stunnel\|squid\|dropbear\|ssh\|openvpn\|python\|http\|perl\|badvpn\|59767"
+ netstat -netulp |grep "8099\|5000\|10000\|8767\|22\|443\|444\|143\|990\|3129\|80\|8080\|445\|7200\|7300"
 mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 jeneng=$(hostname)
 cat <<EOF > $mboh.txt
