@@ -1,9 +1,5 @@
 #!/bin/bash
-SERVER_PRIV_KEY=$(wg genkey)
-SERVER_PUB_KEY=$(echo "$SERVER_PRIV_KEY" | wg pubkey)
 mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
-CERT=$(cat /etc/openvpn/server/ca.crt)
-
 apt update
 apt install git
 git clone https://github.com/znyber/wg_config.git
@@ -15,6 +11,8 @@ read -p "Press enter to continue"
 read -p "Press enter to continue"
 ./openvpn-install.sh
 read -p "Press enter to continue"
+SERVER_PRIV_KEY=$(wg genkey)
+SERVER_PUB_KEY=$(echo "$SERVER_PRIV_KEY" | wg pubkey)
 cat <<EOF > /root/wg_config/wg.def
 _INTERFACE=wg0
 _VPN_NET=10.76.0.0/23
@@ -46,6 +44,7 @@ persist-tun
 status openvpn-status.log
 verb 3
 EOF
+CERT=$(cat /etc/openvpn/server/ca.crt)
 cat <<EOF > /root/wg_config/users/client.ovpn
 client
 dev tun
