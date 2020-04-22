@@ -280,4 +280,37 @@ service openvpn-server@server restart
 /etc/init.d/webmin restart
 netstat -netulp |grep "sslh\|stunnel\|squid\|dropbear\|ssh\|openvpn\|python\|http\|perl\|badvpn\|59767"
 mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
+jeneng=$(hostname)
+cat <<EOF > $mboh.txt
+-----------------------------------------
+IP		: $mboh
+Host		: $jeneng
+------SSH--------------------------------
+
+OpenSSH		: 22
+Dropbear	: 443 / 444
+Dropbear-SSL	: 443 / 143 / 990
+Squid		: 443 / 80 / 8080
+Squid-SSL	: 3129
+
+------Squid_OPEN-------------------------
+
+------ShadwosockS------------------------
+
+------OpenVPN----------------------------
+
+Username	: $1
+Password	: $2
+Port		: 443 / 445
+http://$jeneng:8099/client.ovpn
+
+------WireGuard_AdsBlock-----------------
+
+------BadVPN-----------------------------
+
+port		: 7200
+port		: 7300
+
+-----------------------------------------
+EOF
 echo $mboh
