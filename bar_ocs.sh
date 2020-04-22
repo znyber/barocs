@@ -1,4 +1,5 @@
 #!/bin/bash
+apt install python3-pip -y
 mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 git clone https://github.com/znyber/wg_config.git
 chmod -R 777 wg_config
@@ -72,7 +73,7 @@ echo "deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge cont
 wget http://www.webmin.com/jcameron-key.asc
 apt-key add jcameron-key.asc
 apt update && apt upgrade
-apt install dropbear stunnel squid sslh python3-pip python3 simple-obfs shadowsocks-libev webmin libxml-parser-perl openssl
+apt install dropbear stunnel squid sslh python3-pip python3 simple-obfs shadowsocks-libev webmin libxml-parser-perl openssl -y
 sed -i '10s/.*/ssl=0/' /etc/webmin/miniserv.conf
 mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 echo 'RUN=yes' > /etc/default/sslh
