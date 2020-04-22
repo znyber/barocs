@@ -261,6 +261,7 @@ service bv7300 status
 read -p "Press enter to continue"
 
 ./pihole
+pihole -a -p zxc
 
 sed -i '36s/.*/server.port                 = 8767/' /etc/lighttpd/lighttpd.conf
 sed -i '28s/.*/net.ipv4.ip_forward=1/' /etc/sysctl.conf
