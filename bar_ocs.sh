@@ -277,3 +277,4 @@ service stunnel4 restart
 service openvpn-server@server restart
 /etc/init.d/sslh restart
 /etc/init.d/webmin restart
+netstat -netulp |grep "sslh\|stunnel\|squid\|dropbear\|ssh\|openvpn\|python\|http\|perl\|badvpn\|59767"
