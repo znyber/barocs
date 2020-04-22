@@ -76,9 +76,12 @@ apt update && apt upgrade
 apt install dropbear stunnel squid sslh python3-pip python3 simple-obfs shadowsocks-libev webmin libxml-parser-perl openssl  apache2-utils -y
 sed -i '10s/.*/ssl=0/' /etc/webmin/miniserv.conf
 mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
-echo 'RUN=yes' > /etc/default/sslh
-echo 'DAEMON=/usr/sbin/sslh' >> /etc/default/sslh
-echo 'DAEMON_OPTS="--user sslh --listen  $mboh:443 --ssh 0.0.0.0:444 --openvpn 0.0.0.0:445 --ssl 0.0.0.0:990 --ssl 0.0.0.0:3129 --http 127.0.0.1:3128 --pidfile /var/run/sslh/sslh.pid"' >> /etc/default/sslh
+cat <<EOF > /etc/default/sslh
+RUN=yes
+DAEMON=/usr/sbin/sslh
+DAEMON_OPTS="--user sslh --listen  $mboh:443 --ssh 0.0.0.0:444 --openvpn 0.0.0.0:445 --ssl 0.0.0.0:990 --ssl 0.0.0.0:3129 --http 127.0.0.1:3128 --pidfile /var/run/sslh/sslh.pid"
+
+EOF
 echo 'NO_START=0' > /etc/default/dropbear
 echo 'DROPBEAR_PORT=444' >> /etc/default/dropbear
 echo 'DROPBEAR_EXTRA_ARGS=' >> /etc/default/dropbear
@@ -262,6 +265,8 @@ EOF
 systemctl enable bv7300.service
 service bv7300 start
 service bv7300 status
+/etc/init.d/apache2 stop
+systemctl disable apache2.service
 read -p "Press enter to continue"
 
 ./pihole
