@@ -14,7 +14,7 @@ read -p "Press enter to continue"
 SERVER_PRIV_KEY=$(wg genkey)
 SERVER_PUB_KEY=$(echo "$SERVER_PRIV_KEY" | wg pubkey)
 mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
-patokan=$(echo "_SERVER_PORT")
+patokan=$(echo "\$_SERVER_PORT")
 cat <<EOF > /root/wg_config/wg.def
 _INTERFACE=wg0
 _VPN_NET=10.76.0.0/23
@@ -54,7 +54,7 @@ cat <<EOF > /root/wg_config/users/client.ovpn
 client
 dev tun
 proto tcp
-remote $mboh 445
+remote $mboh 443
 resolv-retry infinite
 nobind
 auth-user-pass
@@ -285,7 +285,7 @@ service openvpn-server@server restart
 /etc/init.d/sslh restart
 /etc/init.d/webmin restart
 /etc/init.d/squid restart
- netstat -netulp |grep "8099\|5000\|10000\|8767\|22\|443\|444\|143\|990\|3129\|80\|8080\|445\|7200\|7300"
+
 mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 jeneng=$(hostname)
 cat <<EOF > $mboh.txt
@@ -318,5 +318,9 @@ port		: 7300
 
 -----------------------------------------
 EOF
-echo $mboh.txt
-cat $mboh
+echo "/bin/false" >> /etc/shells
+echo $mboh
+cat $mboh.txt
+read -p "Press enter to continue"
+netstat -netulp |grep "8099\|5000\|10000\|8767\|22\|443\|444\|143\|990\|3129\|80\|8080\|445\|7200\|7300"
+echo "pastikan sama dengan yang di atas"
