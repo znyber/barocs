@@ -11,12 +11,13 @@ read -p "Press enter to continue"
 read -p "Press enter to continue"
 SERVER_PRIV_KEY=$(wg genkey)
 SERVER_PUB_KEY=$(echo "$SERVER_PRIV_KEY" | wg pubkey)
-
+mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
+patokan=$(echo "_SERVER_PORT")
 cat <<EOF > /root/wg_config/wg.def
 _INTERFACE=wg0
 _VPN_NET=10.76.0.0/23
 _SERVER_PORT=59767
-_SERVER_LISTEN=$mboh:$_SERVER_PORT
+_SERVER_LISTEN=$mboh:$patokan
 _SERVER_PUBLIC_KEY=$SERVER_PRIV_KEY
 _SERVER_PRIVATE_KEY=$SERVER_PUB_KEY
 EOF
@@ -46,7 +47,7 @@ verb 3
 EOF
 
 CERT=$(cat /etc/openvpn/server/ca.crt)
-
+mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 cat <<EOF > /root/wg_config/users/client.ovpn
 client
 dev tun
@@ -72,6 +73,7 @@ apt-key add jcameron-key.asc
 apt update && apt upgrade
 apt install dropbear stunnel squid sslh python3-pip python3 simple-obfs shadowsocks-libev webmin libxml-parser-perl openssl
 sed -i '10s/.*/ssl=0/' /etc/webmin/miniserv.conf
+mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 echo 'RUN=yes' > /etc/default/sslh
 echo 'DAEMON=/usr/sbin/sslh' >> /etc/default/sslh
 echo 'DAEMON_OPTS="--user sslh --listen  $mboh:443 --ssh 0.0.0.0:444 --openvpn 0.0.0.0:445 --ssl 0.0.0.0:990 --ssl 0.0.0.0:3129 --http 127.0.0.1:3128 --pidfile /var/run/sslh/sslh.pid"' >> /etc/default/sslh
@@ -102,7 +104,7 @@ cat <<EOF > /etc/banner.txt
 EOF
 
 htpasswd -c /etc/squid/.squid_users oesman
-
+mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 cat <<EOF > /etc/squid/squid.conf
 http_port $mboh:8080
 http_port $mboh:80
