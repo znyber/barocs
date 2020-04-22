@@ -288,9 +288,9 @@ Host		: $jeneng
 ------SSH--------------------------------
 
 OpenSSH		: 22
-Dropbear	: 443 / 444
-Dropbear-SSL	: 443 / 143 / 990
-Squid		: 443 / 80 / 8080
+Dropbear	: 443, 444
+Dropbear-SSL	: 443, 143, 990, 3129
+Squid		: 443, 80, 8080
 Squid-SSL	: 3129
 
 ------Squid_OPEN-------------------------
@@ -299,9 +299,7 @@ Squid-SSL	: 3129
 
 ------OpenVPN----------------------------
 
-Username	: $1
-Password	: $2
-Port		: 443 / 445
+Port		: 443, 445
 http://$jeneng:8099/client.ovpn
 
 ------WireGuard_AdsBlock-----------------
