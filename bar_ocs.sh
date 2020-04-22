@@ -1,7 +1,5 @@
 #!/bin/bash
 mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
-apt update
-apt install git
 git clone https://github.com/znyber/wg_config.git
 chmod -R 777 wg_config
 cd wg_config
@@ -13,6 +11,7 @@ read -p "Press enter to continue"
 read -p "Press enter to continue"
 SERVER_PRIV_KEY=$(wg genkey)
 SERVER_PUB_KEY=$(echo "$SERVER_PRIV_KEY" | wg pubkey)
+
 cat <<EOF > /root/wg_config/wg.def
 _INTERFACE=wg0
 _VPN_NET=10.76.0.0/23
@@ -21,6 +20,7 @@ _SERVER_LISTEN=$mboh:$_SERVER_PORT
 _SERVER_PUBLIC_KEY=$SERVER_PRIV_KEY
 _SERVER_PRIVATE_KEY=$SERVER_PUB_KEY
 EOF
+
 cat <<EOF > /etc/openvpn/server/server.conf
 port 445
 proto tcp
@@ -44,7 +44,9 @@ persist-tun
 status openvpn-status.log
 verb 3
 EOF
+
 CERT=$(cat /etc/openvpn/server/ca.crt)
+
 cat <<EOF > /root/wg_config/users/client.ovpn
 client
 dev tun
@@ -60,7 +62,8 @@ verb 3
 <ca>
 $CERT
 </ca>
-EOF 
+EOF
+ 
 ./user.sh -a oesman
 echo "deb http://download.webmin.com/download/repository sarge contrib" >> /etc/apt/sources.list
 echo "deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib" >> /etc/apt/sources.list
@@ -75,8 +78,9 @@ echo 'DAEMON_OPTS="--user sslh --listen  $mboh:443 --ssh 0.0.0.0:444 --openvpn 0
 echo 'NO_START=0' > /etc/default/dropbear
 echo 'DROPBEAR_PORT=444' >> /etc/default/dropbear
 echo 'DROPBEAR_EXTRA_ARGS=' >> /etc/default/dropbear
-ehco 'DROPBEAR_BANNER="/etc/banner.txt"' >> /etc/default/dropbear
+echo 'DROPBEAR_BANNER="/etc/banner.txt"' >> /etc/default/dropbear
 echo 'DROPBEAR_RECEIVE_WINDOW=65536' >> /etc/default/dropbear
+
 cat <<EOF > /etc/banner.txt
 <br><font color='#000000'>=======================================</br></font>
 <br><font color='#008080'>***************** <b>SSH Premium for Kadal family</b> ****************</br></font>
@@ -96,7 +100,9 @@ cat <<EOF > /etc/banner.txt
 <br><font color='#0000FF'>************** <b>Created by Donator Kadal Family</b> ***************</br></font>
 <br><font color='#000000'>=======================================</br></font>
 EOF
+
 htpasswd -c /etc/squid/.squid_users oesman
+
 cat <<EOF > /etc/squid/squid.conf
 http_port $mboh:8080
 http_port $mboh:80
@@ -142,6 +148,7 @@ refresh_pattern -i (/cgi-bin/|\?) 0 0% 0
 refresh_pattern . 0 20% 4320
 visible_hostname Daybreakersx
 EOF
+
 cat <<EOF > /etc/stunnel/stunnel.conf
 cert = /etc/stunnel/stunnel.pem
 client = no
@@ -161,11 +168,13 @@ connect = 127.0.0.1:444
 accept = 3129
 connect = 127.0.0.1:3128
 EOF
+
 openssl genrsa -out key.pem 2048
 openssl req -new -x509 -key key.pem -out cert.pem -days 1095
 cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
 sed -i '6s/.*/ENABLED=1/' /etc/default/stunnel4
 read -p "Press enter to continue"
+
 cat <<EOF > /lib/systemd/system/port8099.service
 [Unit]
 Description=http server python service
@@ -245,11 +254,14 @@ ExecStart=-/root/wg_config/badvpn-udpgw --listen-addr 127.0.0.1:7300
 [Install]
 WantedBy=multi-user.target
 EOF
+
 systemctl enable bv7300.service
 service bv7300 start
 service bv7300 status
 read -p "Press enter to continue"
+
 ./pihole
+
 sed -i '36s/.*/server.port                 = 8767/' /etc/lighttpd/lighttpd.conf
 sed -i '28s/.*/net.ipv4.ip_forward=1/' /etc/sysctl.conf
 sed -i '33s/.*/net.ipv6.conf.all.forwarding=1/' /etc/sysctl.conf
