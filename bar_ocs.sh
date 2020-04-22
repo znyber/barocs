@@ -4,6 +4,7 @@ git clone https://github.com/znyber/wg_config.git
 chmod -R 777 wg_config
 cd wg_config
 pwd
+pip3 install flask
 read -p "Press enter to continue"
 ./wireguard-install.sh
 read -p "Press enter to continue"
@@ -278,3 +279,5 @@ service openvpn-server@server restart
 /etc/init.d/sslh restart
 /etc/init.d/webmin restart
 netstat -netulp |grep "sslh\|stunnel\|squid\|dropbear\|ssh\|openvpn\|python\|http\|perl\|badvpn\|59767"
+mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
+echo $mboh
