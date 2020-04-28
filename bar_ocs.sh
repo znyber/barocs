@@ -1,5 +1,7 @@
 #!/bin/bash
 apt install python3-pip -y
+mkdir -p /var/www/html
+cd /var
 mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 git clone https://github.com/znyber/wg_config.git
 chmod -R 777 wg_config
@@ -15,10 +17,10 @@ SERVER_PRIV_KEY=$(wg genkey)
 SERVER_PUB_KEY=$(echo "$SERVER_PRIV_KEY" | wg pubkey)
 mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 patokan=$(echo "\$_SERVER_PORT")
-cat <<EOF > /root/wg_config/wg.def
+cat <<EOF > /var/wg_config/wg.def
 _INTERFACE=wg0
 _VPN_NET=10.76.0.0/23
-_SERVER_PORT=59767
+_SERVER_PORT=7676
 _SERVER_LISTEN=$mboh:$patokan
 _SERVER_PUBLIC_KEY=$SERVER_PRIV_KEY
 _SERVER_PRIVATE_KEY=$SERVER_PUB_KEY
@@ -33,12 +35,12 @@ cert server.crt
 key server.key
 dh dh.pem
 client-cert-not-required
+username-as-common-name
 plugin /usr/lib/x86_64-linux-gnu/openvpn/plugins/openvpn-plugin-auth-pam.so login
 server 10.8.0.0 255.255.255.0
 push "redirect-gateway def1 bypass-dhcp"
 ifconfig-pool-persist ipp.txt
-push "dhcp-option DNS 8.8.8.8"
-push "dhcp-option DNS 8.8.4.4"
+push "dhcp-option DNS 10.7.0.1"
 keepalive 10 120
 user nobody
 group nogroup
@@ -48,25 +50,30 @@ status openvpn-status.log
 verb 3
 EOF
 
-CERT=$(cat /etc/openvpn/server/ca.crt)
-mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
-cat <<EOF > /root/wg_config/users/client.ovpn
-client
+cat <<EOF > /etc/openvpn/server/server-udp.conf
+port 443
+proto udp
 dev tun
-proto tcp
-remote $mboh 443
-resolv-retry infinite
-nobind
-auth-user-pass
-auth-nocache
-ignore-unknown-option block-outside-dns
-block-outside-dns
+ca ca.crt
+cert server.crt
+key server.key
+dh dh.pem
+client-cert-not-required
+username-as-common-name
+plugin /usr/lib/x86_64-linux-gnu/openvpn/plugins/openvpn-plugin-auth-pam.so login
+server 10.7.0.0 255.255.255.0
+push "redirect-gateway def1 bypass-dhcp"
+ifconfig-pool-persist ipp.txt
+push "dhcp-option DNS 10.7.0.1"
+keepalive 10 120
+user nobody
+group nogroup
+persist-key
+persist-tun
+status openvpn-status.log
 verb 3
-<ca>
-$CERT
-</ca>
 EOF
- 
+
 ./user.sh -a oesman
 echo "deb http://download.webmin.com/download/repository sarge contrib" >> /etc/apt/sources.list
 echo "deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib" >> /etc/apt/sources.list
@@ -79,7 +86,7 @@ mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 cat <<EOF > /etc/default/sslh
 RUN=yes
 DAEMON=/usr/sbin/sslh
-DAEMON_OPTS="--user sslh --listen  $mboh:443 --ssh 0.0.0.0:444 --openvpn 0.0.0.0:445 --ssl 0.0.0.0:990 --ssl 0.0.0.0:3129 --http 127.0.0.1:3128 --pidfile /var/run/sslh/sslh.pid"
+DAEMON_OPTS="--user sslh --listen  $mboh:443 --ssh 0.0.0.0:444 --openvpn 0.0.0.0:445 --ssl 0.0.0.0:143 --ssl 0.0.0.0:3129 --ssl 0.0.0.0:990 --http 127.0.0.1:3128 --pidfile /var/run/sslh/sslh.pid"
 
 EOF
 echo 'NO_START=0' > /etc/default/dropbear
@@ -108,6 +115,17 @@ cat <<EOF > /etc/banner.txt
 <br><font color='#000000'>=======================================</br></font>
 EOF
 
+cat <<EOF > /etc/banner-ssh.net
+
+███████╗███╗   ██╗██╗   ██╗██████╗ ███████╗██████╗ 
+╚══███╔╝████╗  ██║╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗
+  ███╔╝ ██╔██╗ ██║ ╚████╔╝ ██████╔╝█████╗  ██████╔╝
+ ███╔╝  ██║╚██╗██║  ╚██╔╝  ██╔══██╗██╔══╝  ██╔══██╗
+███████╗██║ ╚████║   ██║   ██████╔╝███████╗██║  ██║
+╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝
+                                                   
+EOF
+sed -i '109s!.*!Banner /etc/banner-ssh.net!' /etc/ssh/sshd_config
 htpasswd -c /etc/squid/.squid_users oesman
 mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 cat <<EOF > /etc/squid/squid.conf
@@ -163,9 +181,9 @@ socket = a:SO_REUSEADDR=1
 socket = l:TCP_NODELAY=1
 socket = r:TCP_NODELAY=1
 
-[dropbear]
+[openvpn]
 accept = 990
-connect = 127.0.0.1:444
+connect = 127.0.0.1:445
 
 [dropbear]
 accept = 143
@@ -182,27 +200,6 @@ cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
 sed -i '6s/.*/ENABLED=1/' /etc/default/stunnel4
 read -p "Press enter to continue"
 
-cat <<EOF > /lib/systemd/system/port8099.service
-[Unit]
-Description=http server python service
-After=network.target
-StartLimitIntervalSec=0
-
-[Service]
-Restart=always
-RestartSec=1
-WorkingDirectory=/root/wg_config/users
-User=root
-ExecStart=-/usr/bin/python3 -m http.server 8099
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-systemctl enable port8099.service
-service port8099 start
-service port8099 status
-
 cat <<EOF > /lib/systemd/system/port5000.service
 [Unit]
 Description=http server python service
@@ -212,9 +209,9 @@ StartLimitIntervalSec=0
 [Service]
 Restart=always
 RestartSec=1
-WorkingDirectory=/root/wg_config
+WorkingDirectory=/var/wg_config
 User=root
-ExecStart=-/usr/bin/python3 /root/wg_config/coba.py
+ExecStart=-/usr/bin/python3 /var/wg_config/coba.py
 
 [Install]
 WantedBy=multi-user.target
@@ -233,9 +230,9 @@ StartLimitIntervalSec=0
 [Service]
 Restart=always
 RestartSec=1
-WorkingDirectory=/root/wg_config
+WorkingDirectory=/var/wg_config
 User=root
-ExecStart=-/root/wg_config/badvpn-udpgw --listen-addr 127.0.0.1:7200
+ExecStart=-/var/wg_config/badvpn-udpgw --listen-addr 127.0.0.1:7200
 
 [Install]
 WantedBy=multi-user.target
@@ -254,9 +251,9 @@ StartLimitIntervalSec=0
 [Service]
 Restart=always
 RestartSec=1
-WorkingDirectory=/root/wg_config
+WorkingDirectory=/var/wg_config
 User=root
-ExecStart=-/root/wg_config/badvpn-udpgw --listen-addr 127.0.0.1:7300
+ExecStart=-/var/wg_config/badvpn-udpgw --listen-addr 127.0.0.1:7300
 
 [Install]
 WantedBy=multi-user.target
@@ -267,12 +264,14 @@ service bv7300 start
 service bv7300 status
 /etc/init.d/apache2 stop
 systemctl disable apache2.service
+service openvpn-server@server restart
+service openvpn-server@server-udp restart
 read -p "Press enter to continue"
 
 ./pihole
 pihole -a -p zxc
 
-sed -i '36s/.*/server.port                 = 8767/' /etc/lighttpd/lighttpd.conf
+sed -i '36s/.*/server.port                 = 8099/' /etc/lighttpd/lighttpd.conf
 sed -i '28s/.*/net.ipv4.ip_forward=1/' /etc/sysctl.conf
 sed -i '33s/.*/net.ipv6.conf.all.forwarding=1/' /etc/sysctl.conf
 sysctl -p
@@ -281,11 +280,44 @@ service wg-quick@wg0 restart
 service dropbear restart
 service sslh restart
 service stunnel4 restart
-service openvpn-server@server restart
 /etc/init.d/sslh restart
 /etc/init.d/webmin restart
 /etc/init.d/squid restart
+CERT=$(cat /etc/openvpn/server/ca.crt)
+mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
+cat <<EOF > /var/www/html/client.ovpn
+client
+dev tun
+proto tcp
+remote $mboh 443
+resolv-retry infinite
+nobind
+auth-user-pass
+auth-nocache
+ignore-unknown-option block-outside-dns
+block-outside-dns
+verb 2
+<ca>
+$CERT
+</ca>
+EOF
 
+cat <<EOF > /var/www/html/client-udp.ovpn
+client
+dev tun
+proto udp
+remote $mboh 443
+resolv-retry infinite
+nobind
+auth-user-pass
+auth-nocache
+ignore-unknown-option block-outside-dns
+block-outside-dns
+verb 2
+<ca>
+$CERT
+</ca>
+EOF
 mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 jeneng=$(hostname)
 cat <<EOF > $mboh.txt
@@ -309,11 +341,11 @@ Squid-SSL	: 3129
 Port		: 443, 445
 http://$jeneng:8099/client.ovpn
 
-------WireGuard_AdsBlock-----------------
-
+------WireGuard_AdsBlock--(beta)---------
+http://$jeneng:8099/client.conf
 ------BadVPN-----------------------------
 
-port		: 7200
+port		: 7200	(recomended)
 port		: 7300
 
 -----------------------------------------
