@@ -19,7 +19,7 @@ mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 patokan=$(echo "\$_SERVER_PORT")
 cat <<EOF > /var/wg_config/wg.def
 _INTERFACE=wg0
-_VPN_NET=10.76.0.0/23
+_VPN_NET=10.76.0.0/23,fd42:42:42::1/64
 _SERVER_PORT=7676
 _SERVER_LISTEN=$mboh:$patokan
 _SERVER_PUBLIC_KEY=$SERVER_PRIV_KEY
@@ -174,6 +174,7 @@ refresh_pattern . 0 20% 4320
 visible_hostname Daybreakersx
 EOF
 
+apt install stunnel
 cat <<EOF > /etc/stunnel/stunnel.conf
 cert = /etc/stunnel/stunnel.pem
 client = no
