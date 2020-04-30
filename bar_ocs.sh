@@ -355,5 +355,5 @@ echo "/bin/false" >> /etc/shells
 echo $mboh
 cat $mboh.txt
 read -p "Press enter to continue"
-netstat -netulp |grep "8099\|5000\|10000\|8767\|22\|443\|444\|143\|990\|3129\|80\|8080\|445\|7200\|7300"
+netstat -netulp |grep "8099\|5000\|10000\|8767\|22\|443\|444\|143\|990\|3129\|80\|8080\|445\|7200\|7300\|7676"
 echo "pastikan sama dengan yang di atas"
