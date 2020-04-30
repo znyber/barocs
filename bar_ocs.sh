@@ -363,6 +363,13 @@ port		: 7300
 
 -----------------------------------------
 EOF
+
+cat <<EOF > /etc/pam.d/common-password
+password    [success=1 default=ignore]  pam_unix.so obscure sha512 minlen=1
+password        requisite                       pam_deny.so
+password        required                        pam_permit.so
+EOF
+
 echo "/bin/false" >> /etc/shells
 echo $mboh
 cat $mboh.txt
