@@ -6,6 +6,7 @@ mboh=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 git clone https://github.com/znyber/wg_config.git
 chmod -R 777 wg_config
 cd wg_config
+rsync -avz -P script/* /usr/bin/
 pwd
 pip3 install flask
 read -p "Press enter to continue"
