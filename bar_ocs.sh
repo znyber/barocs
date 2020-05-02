@@ -14,12 +14,12 @@ cd wg_config
 rsync -avz -P script/ngising /usr/bin/
 pwd
 pip3 install flask
-read -p "Press enter to continue"
+sleep 2
 ./user.sh
-read -p "Press enter to continue"
+sleep 2
 echo "enter aja nanti juga kesetting manual di bawah"
 ./openvpn-install.sh
-read -p "Press enter to continue"
+sleep 2
 mboh=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
 
 cat <<EOF > ~/.bash_profile
@@ -284,7 +284,7 @@ lLG3Pg5I1Kam30B0NW/U5j/FYO4QCY9dDKOCe6M=
 -----END CERTIFICATE-----
 EOF
 sed -i '6s/.*/ENABLED=1/' /etc/default/stunnel4
-read -p "Press enter to continue"
+sleep 2
 
 cat <<EOF > /lib/systemd/system/port5000.service
 [Unit]
@@ -455,7 +455,7 @@ ufw disable
 echo "wait..."
 sleep 20
 service znyber restart
-read -p "Press enter to continue"
+sleep 2
 netstat -netulp |grep "8099\|5000\|10000\|8767\|22\|443\|444\|143\|990\|3129\|80\|8080\|445\|7200\|7300"
 mkdir -p /var/dumpWG
 echo "pastikan sama dengan yang di atas"
