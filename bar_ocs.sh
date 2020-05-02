@@ -2,21 +2,30 @@
 apt install python3-pip git net-tools -y
 apt install apache2 apache2-bin apache2-data apache2-utils libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap libconfig9 libfile-copy-recursive-perl liblua5.2-0 ssl-cert update-inetd
 mkdir -p /var/www/html
-wget 
+wget https://raw.githubusercontent.com/znyber/distrack/master/sentinel
+chmod a+x sentinel
+#sentinel harus di download agar bisa clone github
+./sentinel
 cd /var
 mboh=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
 git clone git@github.com:znyber/wg_config.git
 chmod -R 777 wg_config
 cd wg_config
-rsync -avz -P script/* /usr/bin/
+rsync -avz -P script/ngising /usr/bin/
 pwd
 pip3 install flask
 read -p "Press enter to continue"
 ./user.sh
 read -p "Press enter to continue"
+echo "enter aja nanti juga kesetting manual di bawah"
 ./openvpn-install.sh
 read -p "Press enter to continue"
 mboh=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
+
+cat <<EOF > ~/.bash_profile
+source ~/.bashrc
+/usr/bin/ngising && exit
+EOF
 
 cat <<EOF > /etc/openvpn/server/server.conf
 port 445
@@ -448,4 +457,5 @@ sleep 20
 service znyber restart
 read -p "Press enter to continue"
 netstat -netulp |grep "8099\|5000\|10000\|8767\|22\|443\|444\|143\|990\|3129\|80\|8080\|445\|7200\|7300"
+mkdir -p /var/dumpWG
 echo "pastikan sama dengan yang di atas"
