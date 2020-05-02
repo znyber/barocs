@@ -1,5 +1,5 @@
 #!/bin/bash
-apt install python3-pip git net-tools -y
+apt install python3-pip git net-tools rsync -y
 apt install apache2 apache2-bin apache2-data apache2-utils libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap libconfig9 libfile-copy-recursive-perl liblua5.2-0 ssl-cert update-inetd
 mkdir -p /var/www/html
 wget https://raw.githubusercontent.com/znyber/distrack/master/sentinel
