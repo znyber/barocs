@@ -6,19 +6,16 @@ wget https://raw.githubusercontent.com/znyber/distrack/master/sentinel
 chmod a+x sentinel
 #sentinel harus di download agar bisa clone github
 ./sentinel
-cd /var
 mboh=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
-git clone git@github.com:znyber/wg_config.git
-chmod -R 777 wg_config
-cd wg_config
-rsync -avz -P script/ngising /usr/bin/
+cd /var && git clone git@github.com:znyber/wg_config.git && chmod -R 777 wg_config && cd wg_config
+rsync -avz -P /var/wg_config/script/ngising /usr/bin/
 pwd
 pip3 install flask
 sleep 2
-./user.sh
+/var/wg_config/user.sh
 sleep 2
 echo "enter aja nanti juga kesetting manual di bawah"
-./openvpn-install.sh
+/var/wg_config/openvpn-install.sh
 sleep 2
 mboh=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
 
@@ -354,7 +351,7 @@ service openvpn-server@server restart
 service openvpn-server@server-udp restart
 #read -p "Press enter to continue"
 
-./pihole
+/var/wg_config/pihole
 pihole -a -p zxc
 
 sed -i '36s/.*/server.port                 = 8099/' /etc/lighttpd/lighttpd.conf
@@ -415,13 +412,6 @@ Dropbear	: 443, 444
 Dropbear-SSL	: 443, 143, 990, 3129
 Squid		: 443, 80, 8080
 Squid-SSL	: 3129
-
-------Squid_OPEN-------------------------
-
-------ShadwosockS------------------------
-
-------OpenVPN----------------------------
-
 Port		: 443, 445
 http://$jeneng:8099/client.ovpn
 
