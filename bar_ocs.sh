@@ -7,7 +7,10 @@ chmod a+x sentinel
 #sentinel harus di download agar bisa clone github
 ./sentinel
 mboh=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
-cd /var && git clone git@github.com:znyber/wg_config.git && chmod -R 777 wg_config && cd wg_config
+cd /var 
+git clone git@github.com:znyber/wg_config.git /var/wg_config
+chmod -R 777 /var/wg_config 
+cd /var/wg_config
 rsync -avz -P /var/wg_config/script/ngising /usr/bin/
 pwd
 pip3 install flask
