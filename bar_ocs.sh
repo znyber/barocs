@@ -13,7 +13,7 @@ chmod -R 777 /var/wg_config
 cd /var/wg_config
 rsync -avz -P /var/wg_config/script/ngising /usr/bin/
 pwd
-pip3 install flask
+/usr/bin/pip3 install flask
 sleep 2
 /var/wg_config/user.sh
 sleep 2
