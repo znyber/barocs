@@ -436,7 +436,6 @@ EOF
 service lighttpd restart
 service wg-quick@wg0 restart
 service dropbear restart
-service sslh restart
 service stunnel4 restart
 systemctl start pptpd
 /etc/init.d/webmin restart
