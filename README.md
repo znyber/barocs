@@ -1,11 +1,11 @@
 # barocs
 barocs
 Template OCS_PANEL hosting/vps/vpn seller with ACL 
-``
-``
+```
+```
 integrated webmin api & python web serv api direct execute bash script
-``
-``
+```
+```
 RHL/RHEL base
 ```
 yum localinstall https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
